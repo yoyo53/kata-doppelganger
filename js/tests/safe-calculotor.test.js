@@ -1,4 +1,13 @@
-test('should not throw when authorized', () => {
-  // TODO: write a test that fails due to the bug in
-  // SafeCalculator.add()
-})
+const SafeCalculator = require("../safe-calculator");
+
+class Authorizer {
+  authorize() {
+    return true;
+  }
+}
+
+test("should not throw when authorized", () => {
+  const authorizer = new Authorizer();
+  const calculator = new SafeCalculator(authorizer);
+  expect(() => calculator.add(1, 2)).not.toThrow();
+});
