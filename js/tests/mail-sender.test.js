@@ -1,12 +1,7 @@
 const { MailSender, SendMailRequest } = require("../mail-sender");
 
 class HttpClient {
-  constructor() {
-    this.calls = [];
-  }
-
   post(url, request) {
-    this.calls.push({ url, request });
     return { code: 503 };
   }
 }
@@ -16,14 +11,15 @@ test("send v1", () => {
   const message = "Hello, world!";
   const httpClient = new HttpClient();
   const mailSender = new MailSender(httpClient);
+  const httpPost = jest.spyOn(httpClient, "post");
 
   mailSender.sendV1(user, message);
 
-  expect(httpClient.calls).toEqual([
-    {
-      url: mailSender.baseUrl,
-      request: new SendMailRequest(user.email, "New notification", message),
-    },
+  expect(httpPost.mock.calls).toEqual([
+    [
+      mailSender.baseUrl,
+      new SendMailRequest(user.email, "New notification", message),
+    ],
   ]);
 });
 
@@ -32,17 +28,18 @@ test("send v2", () => {
   const message = "Hello, world!";
   const httpClient = new HttpClient();
   const mailSender = new MailSender(httpClient);
+  const httpPost = jest.spyOn(httpClient, "post");
 
   mailSender.sendV2(user, message);
 
-  expect(httpClient.calls).toEqual([
-    {
-      url: mailSender.baseUrl,
-      request: new SendMailRequest(user.email, "New notification", message),
-    },
-    {
-      url: mailSender.baseUrl,
-      request: new SendMailRequest(user.email, "New notification", message),
-    },
+  expect(httpPost.mock.calls).toEqual([
+    [
+      mailSender.baseUrl,
+      new SendMailRequest(user.email, "New notification", message),
+    ],
+    [
+      mailSender.baseUrl,
+      new SendMailRequest(user.email, "New notification", message),
+    ],
   ]);
 });
